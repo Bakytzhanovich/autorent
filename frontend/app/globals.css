@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+* {
+  @apply transition-colors duration-200;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #FAFAFA;
+  font-feature-settings: "kern" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, #FC3F1D 0%, #FF6B4D 100%);
+  }
+  
+  .gradient-soft {
+    background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-large hover:-translate-y-1;
+  }
+  
+  .button-primary {
+    @apply gradient-primary text-white font-semibold py-3 px-6 rounded-xl shadow-medium hover:shadow-large hover:scale-[1.02] active:scale-[0.98] transition-all duration-200;
+  }
+  
+  .input-field {
+    @apply w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white text-gray-900 placeholder-gray-400 transition-all duration-200;
+  }
+}
