@@ -1,0 +1,32 @@
+# Render Blueprint: AutoRent
+# Деплой: Dashboard → New → Blueprint → подключить репозиторий и выбрать render.yaml
+
+services:
+  # Backend (FastAPI)
+  - type: web
+    name: autorent-backend
+    runtime: python
+    region: frankfurt
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: FRONTEND_URL
+        sync: false
+        # После деплоя фронта подставьте URL, например: https://autorent-frontend.onrender.com
+
+  # Frontend (Next.js)
+  - type: web
+    name: autorent-frontend
+    runtime: node
+    region: frankfurt
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
