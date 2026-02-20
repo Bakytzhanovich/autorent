@@ -5,13 +5,17 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 import hashlib
 import secrets
+import os
 
 app = FastAPI(title="AutoRent API", version="1.0.0")
 
-# CORS middleware
+# CORS: локально + фронт на Render (FRONTEND_URL в настройках Render)
+_cors_origins = ["http://localhost:3000"]
+if os.getenv("FRONTEND_URL"):
+    _cors_origins.append(os.getenv("FRONTEND_URL").rstrip("/"))
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
