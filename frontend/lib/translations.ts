@@ -18,8 +18,17 @@ export const translations = {
       locationPlaceholder: "Город, аэропорт или адрес",
       from: "От",
       to: "До",
-      time: "Time",
+      time: "Время",
       search: "Поиск",
+      startDateAria: "Дата начала",
+      endDateAria: "Дата окончания",
+      monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+      vehicleTypes: {
+        passengerCar: "Легковое авто",
+        truck: "Грузовое авто",
+        specialEquipment: "Спецтехника",
+        scooters: "Самокаты",
+      },
     },
     // Footer
     footer: {
@@ -105,6 +114,7 @@ export const translations = {
       subtitle: "Широкий выбор автомобилей для аренды",
       noResults: "По вашему запросу машин не найдено. Измените город или даты.",
       foundCount: "Найдено машин: {count}",
+      editFilter: "Изменить поиск",
       showOnMap: "На карту",
       openInGoogleMaps: "Открыть в Google Картах",
       locations: "Локации",
@@ -261,8 +271,17 @@ export const translations = {
       locationPlaceholder: "Қала, әуежай немесе мекен-жай",
       from: "Бастап",
       to: "Дейін",
-      time: "Time",
+      time: "Уақыт",
       search: "Іздеу",
+      startDateAria: "Басталу күні",
+      endDateAria: "Аяқталу күні",
+      monthsShort: ["Қаң", "Ақп", "Нау", "Сәу", "Мам", "Мау", "Шіл", "Там", "Қыр", "Қаз", "Қар", "Жел"],
+      vehicleTypes: {
+        passengerCar: "Жеңіл көлік",
+        truck: "Жүк көлігі",
+        specialEquipment: "Арнайы техника",
+        scooters: "Скутерлер",
+      },
     },
     // Footer
     footer: {
@@ -348,6 +367,7 @@ export const translations = {
       subtitle: "Жалдауға кең автомобиль таңдауы",
       noResults: "Сұранысыңыз бойынша автомобильдер табылмады. Қаланы немесе күндерді өзгертіңіз.",
       foundCount: "Табылған автомобильдер: {count}",
+      editFilter: "Іздеуді өзгерту",
       showOnMap: "Картада",
       openInGoogleMaps: "Google картада ашу",
       locations: "Мекенжайлар",
@@ -501,10 +521,19 @@ export const translations = {
       monthly: "Per month",
       city: "City",
       locationPlaceholder: "City, airport, or address",
+      vehicleTypes: {
+        passengerCar: "Passenger car",
+        truck: "Truck",
+        specialEquipment: "Special equipment",
+        scooters: "Scooters",
+      },
       from: "From",
       to: "To",
       time: "Time",
       search: "Search",
+      startDateAria: "Start date",
+      endDateAria: "End date",
+      monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     },
     // Footer
     footer: {
@@ -590,6 +619,7 @@ export const translations = {
       subtitle: "Wide selection of cars for rent",
       noResults: "No cars found for your search. Try a different city or dates.",
       foundCount: "Cars found: {count}",
+      editFilter: "Edit search",
       showOnMap: "On map",
       openInGoogleMaps: "Open in Google Maps",
       locations: "Locations",
@@ -747,4 +777,10 @@ export const getTranslation = (lang: Language, key: string): string => {
   }
   
   return typeof value === "string" ? value : key;
+};
+
+const defaultMonthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+export const getMonthsShort = (lang: Language): string[] => {
+  const arr = (translations[lang] as any)?.hero?.monthsShort;
+  return Array.isArray(arr) ? arr : (translations.ru as any).hero?.monthsShort ?? defaultMonthsShort;
 };

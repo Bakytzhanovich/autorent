@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, MapPin, Check, ChevronRight, User, Car, FileText, Shield, Fuel, Route, Heart, Share2, Maximize2, PiggyBank, Tag, X } from "lucide-react";
 import { useState } from "react";
-import AIAssistant from "@/components/AIAssistant";
 import { useFavorites } from "@/contexts/FavoritesContext";
 
 // Mock data - в реальном приложении это будет из API
@@ -87,7 +86,7 @@ const mockCars: { [key: number]: any } = {
     transmission: "Automatic",
     consumption: "7.6 L/100km",
     engineVolume: "2.0L",
-    pricePerDay: 18000,
+    pricePerDay: 25000,
     mileageIncluded: 900,
     mileagePricePerKm: 50,
     fuelPolicy: "Как получили, так и вернуть",
@@ -96,6 +95,72 @@ const mockCars: { [key: number]: any } = {
       "2-4": 23000,
       "5-15": 21000,
       "16-30": 19000,
+    },
+  },
+  5: {
+    id: 5,
+    brand: "GAZ",
+    model: "Gazelle Next",
+    year: 2023,
+    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&h=400&fit=crop",
+    type: "Truck",
+    seats: 3,
+    transmission: "Manual",
+    consumption: "12 L/100 km",
+    engineVolume: "2.7L Diesel",
+    pricePerDay: 45000,
+    mileageIncluded: 500,
+    mileagePricePerKm: 30,
+    fuelPolicy: "Полный бак при получении и возврате",
+    prices: {
+      "1": 45000,
+      "2-4": 42000,
+      "5-15": 40000,
+      "16-30": 38000,
+    },
+  },
+  6: {
+    id: 6,
+    brand: "KAMAZ",
+    model: "5490",
+    year: 2022,
+    image: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=600&h=400&fit=crop",
+    type: "Truck",
+    seats: 2,
+    transmission: "Manual",
+    consumption: "32 L/100 km",
+    engineVolume: "12.9L Diesel",
+    pricePerDay: 95000,
+    mileageIncluded: 400,
+    mileagePricePerKm: 80,
+    fuelPolicy: "Полный бак при получении и возврате",
+    prices: {
+      "1": 95000,
+      "2-4": 90000,
+      "5-15": 85000,
+      "16-30": 80000,
+    },
+  },
+  7: {
+    id: 7,
+    brand: "Isuzu",
+    model: "NPR 75",
+    year: 2023,
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop",
+    type: "Truck",
+    seats: 3,
+    transmission: "Manual",
+    consumption: "14 L/100 km",
+    engineVolume: "5.2L Diesel",
+    pricePerDay: 65000,
+    mileageIncluded: 500,
+    mileagePricePerKm: 40,
+    fuelPolicy: "Полный бак при получении и возврате",
+    prices: {
+      "1": 65000,
+      "2-4": 60000,
+      "5-15": 58000,
+      "16-30": 55000,
     },
   },
 };
@@ -576,8 +641,6 @@ export default function CarDetailsPage() {
           </div>
         </div>
       )}
-
-      <AIAssistant />
     </div>
   );
 }

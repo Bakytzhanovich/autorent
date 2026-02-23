@@ -1,10 +1,10 @@
 "use client";
 
-import { MapPin, Search } from "lucide-react";
-import { useState, useRef } from "react";
+import { MapPin, Search, Car, Truck, Wrench, Bike } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/lib/translations";
-import { useSearch } from "@/contexts/SearchContext";
+import { getTranslation, getMonthsShort } from "@/lib/translations";
+import { useSearch, type VehicleType } from "@/contexts/SearchContext";
 
 const cityLabels: Record<string, string> = {
   Almaty: "Алматы",
@@ -59,24 +59,32 @@ const cityLabels: Record<string, string> = {
   Merke: "Мерке",
 };
 
-function formatDisplayDate(dateStr: string): string {
+function formatDisplayDate(dateStr: string, monthsShort: string[]): string {
   if (!dateStr) return "—";
   const d = new Date(dateStr + "T12:00:00");
   const day = d.getDate();
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const month = months[d.getMonth()];
+  const month = monthsShort[d.getMonth()] || "";
   return `${day} ${month}`;
 }
 
 export default function Hero() {
   const { language } = useLanguage();
-  const { setSearchParams } = useSearch();
+  const { searchParams, setSearchParams } = useSearch();
   const [rentalType, setRentalType] = useState<"daily" | "monthly">("daily");
   const [city, setCity] = useState("Almaty");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const defaultFromTime = "10:00";
   const defaultToTime = "10:00";
+
+  useEffect(() => {
+    if (searchParams) {
+      setCity(searchParams.city);
+      setRentalType(searchParams.rentalType);
+      setFromDate(searchParams.fromDate || "");
+      setToDate(searchParams.toDate || "");
+    }
+  }, [searchParams]);
 
   const handleSearch = () => {
     setSearchParams({
@@ -86,9 +94,27 @@ export default function Hero() {
       fromTime: defaultFromTime,
       toTime: defaultToTime,
       rentalType,
+      vehicleType: searchParams?.vehicleType ?? null,
     });
     const el = document.getElementById("car-results");
     el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const activeVehicleType = searchParams?.vehicleType ?? null;
+
+  const handleCategoryClick = (vehicleType: NonNullable<VehicleType>) => {
+    const base = searchParams ?? {
+      city,
+      fromDate: fromDate || new Date().toISOString().slice(0, 10),
+      toDate: toDate || fromDate || new Date().toISOString().slice(0, 10),
+      fromTime: defaultFromTime,
+      toTime: defaultToTime,
+      rentalType,
+      vehicleType: null,
+    };
+    const newType = activeVehicleType === vehicleType ? null : vehicleType;
+    setSearchParams({ ...base, vehicleType: newType });
+    document.getElementById("car-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const cityDisplayName = cityLabels[city] || city;
@@ -96,7 +122,7 @@ export default function Hero() {
   const toDateRef = useRef<HTMLInputElement>(null);
 
   return (
-    <section className="relative bg-[#F5F5F5] py-12 sm:py-16 lg:py-20">
+    <section id="search-form" className="relative bg-[#F5F5F5] py-12 sm:py-16 lg:py-20 scroll-mt-20">
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full -translate-y-1/2 translate-x-1/2"
@@ -240,7 +266,7 @@ export default function Hero() {
                       {getTranslation(language, "hero.from")}
                     </div>
                     <div className="text-base sm:text-lg font-bold text-gray-900">
-                      {formatDisplayDate(fromDate) || "—"}
+                      {formatDisplayDate(fromDate, getMonthsShort(language)) || "—"}
                     </div>
                     <input
                       ref={fromDateRef}
@@ -278,7 +304,7 @@ export default function Hero() {
                       {getTranslation(language, "hero.to")}
                     </div>
                     <div className="text-base sm:text-lg font-bold text-gray-900">
-                      {formatDisplayDate(toDate) || "—"}
+                      {formatDisplayDate(toDate, getMonthsShort(language)) || "—"}
                     </div>
                     <input
                       ref={toDateRef}
@@ -286,7 +312,7 @@ export default function Hero() {
                       value={toDate}
                       onChange={(e) => setToDate(e.target.value)}
                       className="sr-only"
-                      aria-label="Дата окончания"
+                      aria-label={getTranslation(language, "hero.endDateAria")}
                     />
                   </div>
                   <div>
@@ -309,6 +335,89 @@ export default function Hero() {
             >
               <Search className="w-5 h-5 flex-shrink-0" />
               <span>{getTranslation(language, "hero.search")}</span>
+            </button>
+          </div>
+
+          {/* Vehicle Type Categories */}
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {/* Легковое авто */}
+            <button
+              type="button"
+              onClick={() => handleCategoryClick("passenger")}
+              className={`rounded-2xl p-4 sm:p-5 flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all duration-200 hover:shadow-md group ${
+                activeVehicleType === "passenger" ? "bg-[#eb5d47]/10 ring-2 ring-[#eb5d47]" : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+                <Car 
+                  className="w-full h-full text-[#eb5d47]" 
+                  strokeWidth={1.5}
+                  style={{ stroke: '#eb5d47', fill: 'none' }}
+                />
+              </div>
+              <span className="text-xs sm:text-sm font-medium text-gray-700 text-center">
+                {getTranslation(language, "hero.vehicleTypes.passengerCar")}
+              </span>
+            </button>
+
+            {/* Грузовое авто */}
+            <button
+              type="button"
+              onClick={() => handleCategoryClick("truck")}
+              className={`rounded-2xl p-4 sm:p-5 flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all duration-200 hover:shadow-md group ${
+                activeVehicleType === "truck" ? "bg-[#eb5d47]/10 ring-2 ring-[#eb5d47]" : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+                <Truck 
+                  className="w-full h-full text-[#eb5d47]" 
+                  strokeWidth={1.5}
+                  style={{ stroke: '#eb5d47', fill: 'none' }}
+                />
+              </div>
+              <span className="text-xs sm:text-sm font-medium text-gray-700 text-center">
+                {getTranslation(language, "hero.vehicleTypes.truck")}
+              </span>
+            </button>
+
+            {/* Спецтехника */}
+            <button
+              type="button"
+              onClick={() => handleCategoryClick("special")}
+              className={`rounded-2xl p-4 sm:p-5 flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all duration-200 hover:shadow-md group ${
+                activeVehicleType === "special" ? "bg-[#eb5d47]/10 ring-2 ring-[#eb5d47]" : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+                <Wrench 
+                  className="w-full h-full text-[#eb5d47]" 
+                  strokeWidth={1.5}
+                  style={{ stroke: '#eb5d47', fill: 'none' }}
+                />
+              </div>
+              <span className="text-xs sm:text-sm font-medium text-gray-700 text-center">
+                {getTranslation(language, "hero.vehicleTypes.specialEquipment")}
+              </span>
+            </button>
+
+            {/* Самокаты */}
+            <button
+              type="button"
+              onClick={() => handleCategoryClick("scooters")}
+              className={`rounded-2xl p-4 sm:p-5 flex flex-col items-center justify-center gap-2 sm:gap-3 transition-all duration-200 hover:shadow-md group ${
+                activeVehicleType === "scooters" ? "bg-[#eb5d47]/10 ring-2 ring-[#eb5d47]" : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+                <Bike 
+                  className="w-full h-full text-[#eb5d47]" 
+                  strokeWidth={1.5}
+                  style={{ stroke: '#eb5d47', fill: 'none' }}
+                />
+              </div>
+              <span className="text-xs sm:text-sm font-medium text-gray-700 text-center">
+                {getTranslation(language, "hero.vehicleTypes.scooters")}
+              </span>
             </button>
           </div>
         </div>

@@ -46,8 +46,10 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           <Logo />
           
-          <div className="flex items-center gap-2 sm:gap-4">
-            <LanguageSwitcher />
+          <div className="flex items-center gap-2 sm:gap-4 relative">
+            <div className="relative" style={{ zIndex: 60 }}>
+              <LanguageSwitcher />
+            </div>
             
             <Link
               href="/favorites"

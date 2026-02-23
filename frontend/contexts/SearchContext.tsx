@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+
+export type VehicleType = "passenger" | "truck" | "special" | "scooters" | null;
 
 export interface SearchParams {
   city: string;
@@ -9,13 +11,16 @@ export interface SearchParams {
   fromTime: string;
   toTime: string;
   rentalType: "daily" | "monthly";
+  vehicleType?: VehicleType;
 }
 
 interface SearchContextType {
   searchParams: SearchParams | null;
-  setSearchParams: (params: SearchParams) => void;
+  setSearchParams: (params: SearchParams | ((prev: SearchParams) => SearchParams)) => void;
   rentalDays: number;
 }
+
+const STORAGE_KEY = "autorent_search_params";
 
 const defaultParams: SearchParams = {
   city: "Almaty",
@@ -24,6 +29,7 @@ const defaultParams: SearchParams = {
   fromTime: "10:00",
   toTime: "10:00",
   rentalType: "daily",
+  vehicleType: null,
 };
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
@@ -36,12 +42,36 @@ function computeRentalDays(fromDate: string, toDate: string): number {
   return diff > 0 ? diff : 1;
 }
 
+function loadFromStorage(): SearchParams | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored) as SearchParams;
+    if (parsed?.city) return parsed;
+  } catch {}
+  return null;
+}
+
 export function SearchProvider({ children }: { children: ReactNode }) {
   const [searchParams, setSearchParamsState] = useState<SearchParams | null>(null);
 
-  const setSearchParams = (params: SearchParams) => {
-    setSearchParamsState(params);
-  };
+  useEffect(() => {
+    const saved = loadFromStorage();
+    if (saved) setSearchParamsState(saved);
+  }, []);
+
+  const setSearchParams = useCallback((paramsOrUpdater: SearchParams | ((prev: SearchParams) => SearchParams)) => {
+    setSearchParamsState((prev) => {
+      const next = typeof paramsOrUpdater === "function"
+        ? paramsOrUpdater(prev ?? defaultParams)
+        : paramsOrUpdater;
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      }
+      return next;
+    });
+  }, []);
 
   const effective = searchParams ?? defaultParams;
   const rentalDays = computeRentalDays(effective.fromDate, effective.toDate);

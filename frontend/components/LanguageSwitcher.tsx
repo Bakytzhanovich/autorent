@@ -17,12 +17,16 @@ export default function LanguageSwitcher() {
 
   const currentLang = languages.find((lang) => lang.code === language) || languages[0];
 
+  const handleToggle = () => setIsOpen((prev) => !prev);
+
   return (
-    <div className="relative">
+    <div className="relative z-[60]">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+        type="button"
+        onClick={handleToggle}
+        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
         aria-label="Выбрать язык"
+        aria-expanded={isOpen}
       >
         <Globe className="w-5 h-5 text-gray-600" />
         <span className="text-lg">{currentLang.flag}</span>
@@ -34,18 +38,27 @@ export default function LanguageSwitcher() {
       {isOpen && (
         <>
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0"
+            style={{ zIndex: 55 }}
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 min-w-[180px]">
+          <div 
+            className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[180px]"
+            style={{ zIndex: 60 }}
+          >
             {languages.map((lang) => (
               <button
                 key={lang.code}
-                onClick={() => {
-                  setLanguage(lang.code);
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (lang.code !== language) {
+                    setLanguage(lang.code);
+                  }
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors cursor-pointer ${
                   language === lang.code ? "bg-primary/5" : ""
                 }`}
               >

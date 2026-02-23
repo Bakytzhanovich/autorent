@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { Language } from "@/lib/translations";
 
 interface LanguageContextType {
@@ -10,31 +10,48 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+function getInitialLanguage(): Language {
+  if (typeof window === "undefined") {
+    return "ru"; // Default for SSR
+  }
+  
+  const savedLang = localStorage.getItem("language") as Language;
+  if (savedLang && (savedLang === "ru" || savedLang === "kk" || savedLang === "en")) {
+    return savedLang;
+  }
+  
+  // Detect browser language
+  const browserLang = navigator.language.split("-")[0];
+  if (browserLang === "kk") {
+    return "kk";
+  } else if (browserLang === "en") {
+    return "en";
+  }
+  
+  return "ru";
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("ru");
+  const [language, setLanguageState] = useState<Language>(() => getInitialLanguage());
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // Load language from localStorage or detect from browser
-    const savedLang = localStorage.getItem("language") as Language;
-    if (savedLang && (savedLang === "ru" || savedLang === "kk" || savedLang === "en")) {
-      setLanguageState(savedLang);
-    } else {
-      // Detect browser language
-      const browserLang = navigator.language.split("-")[0];
-      if (browserLang === "kk") {
-        setLanguageState("kk");
-      } else if (browserLang === "en") {
-        setLanguageState("en");
-      } else {
-        setLanguageState("ru");
+    // On client side, load from localStorage
+    if (typeof window !== "undefined") {
+      const savedLang = localStorage.getItem("language") as Language;
+      if (savedLang && (savedLang === "ru" || savedLang === "kk" || savedLang === "en")) {
+        setLanguageState(savedLang);
       }
+      setIsHydrated(true);
     }
   }, []);
 
-  const setLanguage = (lang: Language) => {
+  const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("language", lang);
-  };
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", lang);
+    }
+  }, []);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>

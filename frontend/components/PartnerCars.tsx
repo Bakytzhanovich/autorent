@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, ArrowRight, Heart, Map, X } from "lucide-react";
+import { MessageCircle, ArrowRight, Heart, Map, X, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
@@ -123,6 +123,67 @@ const mockCars: Car[] = [
       "16-30": 19000,
     },
   },
+  // Грузовые автомобили
+  {
+    id: 5,
+    brand: "GAZ",
+    model: "Gazelle Next",
+    year: 2023,
+    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&h=400&fit=crop",
+    seats: 3,
+    transmission: "Manual",
+    consumption: "12 L/100 km",
+    engineVolume: "2.7L Diesel",
+    cities: ["Almaty", "Astana", "Shymkent", "Karaganda"],
+    category: "Truck",
+    location: almatyLocations[0],
+    prices: {
+      "1": 45000,
+      "2-4": 42000,
+      "5-15": 40000,
+      "16-30": 38000,
+    },
+  },
+  {
+    id: 6,
+    brand: "KAMAZ",
+    model: "5490",
+    year: 2022,
+    image: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=600&h=400&fit=crop",
+    seats: 2,
+    transmission: "Manual",
+    consumption: "32 L/100 km",
+    engineVolume: "12.9L Diesel",
+    cities: ["Almaty", "Astana", "Shymkent", "Atyrau", "Aktau"],
+    category: "Truck",
+    location: almatyLocations[1],
+    prices: {
+      "1": 95000,
+      "2-4": 90000,
+      "5-15": 85000,
+      "16-30": 80000,
+    },
+  },
+  {
+    id: 7,
+    brand: "Isuzu",
+    model: "NPR 75",
+    year: 2023,
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop",
+    seats: 3,
+    transmission: "Manual",
+    consumption: "14 L/100 km",
+    engineVolume: "5.2L Diesel",
+    cities: ["Almaty", "Astana", "Shymkent", "Karaganda", "Pavlodar"],
+    category: "Truck",
+    location: almatyLocations[2],
+    prices: {
+      "1": 65000,
+      "2-4": 60000,
+      "5-15": 58000,
+      "16-30": 55000,
+    },
+  },
 ];
 
 function getTariffForDays(days: number): "1" | "2-4" | "5-15" | "16-30" {
@@ -141,8 +202,21 @@ export default function PartnerCars() {
   const [showMapModal, setShowMapModal] = useState(false);
 
   const filteredCars = useMemo(() => {
-    if (!searchParams) return mockCars;
-    return mockCars.filter((car) => car.cities.includes(searchParams.city));
+    let cars = mockCars;
+    if (searchParams) {
+      cars = cars.filter((car) => car.cities.includes(searchParams.city));
+      const vt = searchParams.vehicleType;
+      if (vt === "passenger") {
+        cars = cars.filter((car) => ["Sedan", "SUV"].includes(car.category));
+      } else if (vt === "truck") {
+        cars = cars.filter((car) => car.category === "Truck");
+      } else if (vt === "special") {
+        cars = cars.filter((car) => car.category === "Special");
+      } else if (vt === "scooters") {
+        cars = cars.filter((car) => car.category === "Scooter");
+      }
+    }
+    return cars;
   }, [searchParams]);
 
   const handleMapClick = () => {
@@ -191,16 +265,28 @@ export default function PartnerCars() {
   const defaultTariff = getTariffForDays(rentalDays);
   const getSelectedTariff = (carId: number) => selectedTariff[carId] || defaultTariff;
 
+  const scrollToEditFilter = () => {
+    document.getElementById("search-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <section id="car-results" className="py-6 bg-white min-h-screen scroll-mt-4">
       <div className="container mx-auto px-4">
         {searchParams && (
-          <div className="mb-4">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-gray-600">
               {filteredCars.length === 0
                 ? getTranslation(language, "partnerCars.noResults")
                 : getTranslation(language, "partnerCars.foundCount").replace("{count}", String(filteredCars.length)) + (searchParams.city ? ` · ${searchParams.city}` : "")}
             </p>
+            <button
+              type="button"
+              onClick={scrollToEditFilter}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5 rounded-xl border border-primary/30 transition-colors"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              {getTranslation(language, "partnerCars.editFilter")}
+            </button>
           </div>
         )}
 
@@ -335,10 +421,10 @@ export default function PartnerCars() {
         <button
           type="button"
           onClick={handleMapClick}
-          className="fixed bottom-6 left-6 z-40 w-14 h-14 bg-primary hover:bg-primary-dark text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+          className="fixed bottom-6 left-6 z-40 w-14 h-14 bg-white hover:bg-gray-100 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 border border-gray-200"
           aria-label={getTranslation(language, "partnerCars.showOnMap")}
         >
-          <Map className="w-6 h-6" />
+          <Map className="w-6 h-6 shrink-0" stroke="#FC3F1D" strokeWidth={2} fill="none" />
         </button>
       )}
 
